@@ -1,6 +1,6 @@
 "use strict";
 
-const totalTasks = 10001;
+const totalTasks = NaN;
 const completedTasks = 0;
 
 let status = "В работе";
