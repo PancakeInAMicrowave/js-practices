@@ -355,6 +355,47 @@ check("35. Работа с другим набором, без зависимо�
 //   assert.deepEqual(result, ...);
 // });
 
+check("36. Добавление задачи с id между существующими", () => {
+  const tasks = fixture();
+  const next = expectTasks(addTask(tasks, 5, "Промежуточная задача", "low"));
+
+  assert.deepEqual(next.map((task) => task.id), [1, 4, 7, 10, 5]);
+  assert.equal(next[4].title, "Промежуточная задача");
+  assert.equal(next[4].priority, "low");
+  assert.deepEqual(tasks, fixture());
+});
+
+check("37. Операции над разными задачами не затрагивают друг друга", () => {
+  const tasks = fixture();
+
+  const renamed = expectTasks(renameTask(tasks, 4, "Новое название"));
+  const completed = expectTasks(setTaskCompleted(renamed, 7, true));
+
+  assert.equal(completed[1].title, "Новое название");
+  assert.equal(completed[2].completed, true);
+  assert.equal(completed[0].title, tasks[0].title);
+  assert.equal(completed[3].title, tasks[3].title);
+
+  assert.equal(tasks[1].title, "Подготовить модель задач");
+  assert.equal(tasks[2].completed, false);
+});
+
+check("38. Удаление задачи не меняет данные оставшихся объектов", () => {
+  const tasks = fixture();
+  const before = copyTasks(tasks);
+
+  const next = expectTasks(removeTask(tasks, 4));
+
+  assert.deepEqual(next.map((task) => task.id), [1, 7, 10]);
+
+  for (const task of next) {
+    const original = before.find((item) => item.id === task.id);
+    assert.deepEqual(task, original);
+  }
+
+  assert.deepEqual(tasks, before);
+});
+
 console.log(`\nПроверок пройдено: ${passed}; не пройдено: ${failed}.`);
 if (failed > 0) {
   process.exitCode = 1;
